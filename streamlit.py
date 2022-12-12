@@ -8,7 +8,7 @@ st.write("""
   # Churn Prediction
 
   - **Made by [Eduardo Chaves](https://linkedin.com/in/edu-chaves 'LinkedIn de Eduardo Chaves')**
-  - **Repositório deste Projeto no [GitHub](https://github.com/eduardochaves1 'Churn Prediction by Eduardo Chaves')**
+  - **Repositório deste Projeto no [GitHub](https://github.com/eduardochaves1/churn-prediction 'Churn Prediction by Eduardo Chaves')**
 
   ## Qual o problema a ser resolvido?
   O intuito deste projeto é calcular a porcentagem de um cliente X *(cadastrado pelo usuário na barra lateral)* de cancelar ou continuar em um contrato (*plano*) de serviçoes de uma empresa de telecomunicações no próximo mês.
