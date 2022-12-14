@@ -87,8 +87,6 @@ st.write("""
 """)
 st.write(df)
 
-st.write('## Resultado da Predição')
-
 # ====================
 # DF PREPROCESSING (with user input_features)
 # ====================
@@ -115,6 +113,8 @@ predictionPercentage = np.round((model.predict_proba(df) * 100), 2)
 # ====================
 # MAIN CONTENT (last part)
 # ====================
+
+st.write('## Resultado da Predição')
 
 predictions = [predictionPercentage[0][0], predictionPercentage[0][1]]
 
