@@ -129,4 +129,74 @@ st.write("""
   ## Como o Modelo Chegou a este Resultado?
   Segue abaixo um gráfico exibindo as variáveis que mais importam na tomada de decisão de acordo com o aprendizado do modelo treinado previamente.
 """)
-st.image(Image.open('./assets/feature-importance.png'))
+st.image(Image.open('./assets/graphs/feature-importance.png'))
+
+# ====================
+# GRAPHS EXPOSURE
+# ====================
+
+st.write("""
+  ---
+  ## Como este Modelo foi Treinado?
+  O modelo preditivo usado neste projeto foi treinado por um algorítimo de *Machine Learning* em cima de um *Data Frame*, o qual possuia as seguintes estatísticas...
+""")
+st.caption('**OBS.:** Para entender o lado mais técnico acesse o link para o repositório deste projeto no GitHub no ínicio desta página.')
+
+st.write('- ### Pessoas que deram *Churn* nos 30 dias anteriores')
+st.image(Image.open('./assets/graphs/churn.png'))
+
+st.write("""
+  - ### Tempo de Contrato, Gasto Mensal e Gasto Total em Serviços
+  
+  Os gráficos *boxplot* abaixo ([saiba como interpretar esse tipo de gráfico com esse tutotiral](https://www.youtube.com/watch?v=qU2lANG4hYQ&ab_channel=Statplace 'Vídeo no Youtube ensinando a interpretar um gráfico Boxplot')) demonstram respectivamente:
+  
+  - A quantidade de tempo, em meses, que os clientes manteram os contratos de serviços da empresa (*Tenure*);
+  - O gasto mensal que os clientes mantinham nos serviços da empresa (*MonthlyCharges*);
+  - O gasto total que os clientes tiveram nos serviços da empresa até o último mês (*TotalCharges*).
+""")
+st.image(Image.open('./assets/graphs/numeric-features.png'))
+
+st.write("""
+  - ### Informações sobre Contrato
+  
+  Os gráficos abaixo demonstram a quantidade de pessoas para as seguintes informações, respectivamente:
+  
+  - O tipo de período de contrato (Mensal, Anual ou Bianual);
+  - Se o pagamento era realizado de forma digital;
+  - O Método de Pagamento utilizado (Cheque Eletrônico, Cheque por Correios, Transferência Bancária e Cartão de Crédito, sendo esses dois últimos feitos de forma automática).
+""")
+st.image(Image.open('./assets/graphs/contract-features.png'))
+
+st.write("""
+  - ### Dados Demográficos
+  
+  Os gráficos demográficos abaixo (sobre os clientes da empresa) demonstram a quantidade de pessoas para as seguintes informações, respectivamente:
+  
+  - Sexo do cliente;
+  - Se o cliente é idoso;
+  - Se o cliente tem um parceiro (Casado ou Namorando);
+  - Se o cliente tem dependentes (alguém que depende financeiramente do cliente).
+""")
+st.image(Image.open('./assets/graphs/demographic-features.png'))
+
+st.write("""
+  - ### Dados de Serviços
+  
+  Os gráficos abaixo demonstram a quantidade de pessoas que utilizam os seguintes serviços fornecidos pela empresa, respectivamente:
+  
+  - Serviço Telefônico;
+  - Multiplas Linhas Telefônicas;
+  - Serviço de Internet;
+  - Serviço de Seguraça Online;
+  - Serviço de Backup Online;
+  - Proteção de Dispositivo;
+  - Suporte Técnico;
+  - Straming de TV;
+  - Straming de Filmes.
+""")
+st.image(Image.open('./assets/graphs/services-features.png'))
+
+st.write("""
+  ---
+  > ***"No futuro, o pensamento estatístico será tão necessário para a cidadania eficiente como saber ler e escrever."*** - H.G. Wells (escritor, autor de "A Guerra dos Mundos" e "A Máquina do Tempo")
+""")
