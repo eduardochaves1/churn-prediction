@@ -4,21 +4,26 @@ from PIL import Image
 import pandas as pd
 import numpy as np
 
-st.write("""
-  # Churn Prediction
 
-  - **Made by [Eduardo Chaves](https://linkedin.com/in/edu-chaves 'LinkedIn de Eduardo Chaves')**
-  - **Repositório deste Projeto no [GitHub](https://github.com/eduardochaves1/churn-prediction 'Churn Prediction by Eduardo Chaves')**
+def get_prediction(data):
+  categorical_features = data.drop(['MonthlyCharges', 'tenure'], axis=1)
+  for feature in categorical_features.columns:
+    data[feature] = data[feature].astype('category')
 
-  ## Qual o problema a ser resolvido?
-  O intuito deste projeto é calcular a porcentagem de um cliente X *(cadastrado pelo usuário na barra lateral)* de cancelar ou continuar em um contrato (*plano*) de serviçoes de uma empresa de telecomunicações no próximo mês.
+  # IMPORTANT: As trocas por 0,1,2... seguem ordem alfabétida baseada nos textos do data original
+  # treinado para o modelo salvo e não nos dados aqui escritos em português
+  data.replace(('Não', 'Sim'), (0, 1), inplace=True)
+  data.gender.replace(('Feminino', 'Masculino'), (0, 1), inplace=True)
+  data.InternetService.replace(('DSL', 'Não', 'Fibra Optica'), (0, 1, 2), inplace=True)
+  data.Contract.replace(('Mensal', 'Anual', 'Bianual'), (0, 1, 2), inplace=True)
+  data.PaymentMethod.replace(('Transferência Bancária', 'Cartão de Crédito', 'Cheque Eletrônico', 'Cheque Físico'), (0, 1, 2, 3), inplace=True)
 
-  Tal situação é medido pelo *Churn*, que é quando um cliente deixa de consumir o produto / serviço de uma empresa. E este projeto visa capacitar uma empresa a identificar possíveis clientes que estão mais propensos a tomar tal decisão.
-  
-  Assim como identificar as métricas – relacionadas aos serviços / produtos da empresa – que mais influenciam na escolha do cliente sair ou continuar na mesma. Visando tomar medidas a diminuir o índice de *Churn* na empresa nos meses seguintes.
-""")
 
-st.image(Image.open('./assets/churnrate.jpg'))
+  model = joblib.load('./assets/churn-prediction-model.jbl')
+  return pd.DataFrame({
+    'Not Churn': f'{model.predict_proba(data)[0][0] * 100 :.1f}%',
+    'Churn': f'{model.predict_proba(data)[0][1] * 100 :.1f}%'}, index=['Predictions'])
+
 
 # ====================
 # SIDEBAR (user input_features)
@@ -27,126 +32,113 @@ st.image(Image.open('./assets/churnrate.jpg'))
 st.sidebar.write('# **Cadastro dos Parâmetros**')
 
 def input_features():
-  gender = st.sidebar.radio('**Sexo:**', ('Masculino', 'Feminino'), horizontal=True)
-  seniorCitizen = st.sidebar.radio('**Idoso:**', ('Não', 'Sim'), horizontal=True)
-  partner = st.sidebar.radio('**Casado/Namorando:**', ('Não', 'Sim'), horizontal=True)
-  dependents = st.sidebar.radio('**Dependentes:**', ('Não', 'Sim'), horizontal=True)
-  phoneService = st.sidebar.radio('**Serviço de Telefone:**', ('Não', 'Sim'), horizontal=True)
-  multipleLines = st.sidebar.radio('**Multipla Linhas:**', ('Não', 'Sim'), horizontal=True)
-  internetService = st.sidebar.radio('**Serviço de Internet:**', ('Não', 'Fibra Optica', 'DSL'))
-  onlineSecurity = st.sidebar.radio('**Segurança Online:**', ('Não', 'Sim'), horizontal=True)
-  onlineBackup = st.sidebar.radio('**Backup Online:**', ('Não', 'Sim'), horizontal=True)
-  deviceProtection = st.sidebar.radio('**Proteção de Dispositivo:**', ('Não', 'Sim'), horizontal=True)
-  techSupport = st.sidebar.radio('**Suporte Tecnológico:**', ('Não', 'Sim'), horizontal=True)
-  streamingTV = st.sidebar.radio('**Streaming de TV:**', ('Não', 'Sim'), horizontal=True)
-  stramingMovies = st.sidebar.radio('**Streaming de Filmes:**', ('Não', 'Sim'), horizontal=True)
-  contract = st.sidebar.radio('**Tipo de Contrato:**', ('Mensal', 'Anual', 'Bianual'))
-  paperlessBilling = st.sidebar.radio('**Cobrança Digital:**', ('Não', 'Sim'), horizontal=True)
-  paymentMethod = st.sidebar.radio('**Método de Pagamento:**', ('Cartão de Crédito', 'Transferência Bancária', 'Cheque Eletrônico', 'Cheque Físico'))
-  tenure = st.sidebar.slider('**Tempo de Contratação (Meses):**', 0, 70, 12)
-  monthlyCharges = st.sidebar.number_input('**Cobrança Mensal (R$):**', value=65, min_value=10, max_value=120)
-  totalCharges = monthlyCharges * tenure
+  def get_sidebar_radio(title, choices=('Não', 'Sim'), horizontal=True):
+    return st.sidebar.radio(f'**{title}:**', choices, horizontal=horizontal)
 
-  data = {
-    'gender': gender,
-    'SeniorCitizen': seniorCitizen,
-    'Partner': partner,
-    'Dependents': dependents,
-    'tenure': tenure,
-    'PhoneService': phoneService,
-    'MultipleLines': multipleLines,
-    'InternetService': internetService,
-    'OnlineSecurity': onlineSecurity,
-    'OnlineBackup': onlineBackup,
-    'DeviceProtection': deviceProtection,
-    'TechSupport': techSupport,
-    'StreamingTV': streamingTV,
-    'StramingMovies': stramingMovies,
-    'Contract': contract,
-    'PaperlessBilling': paperlessBilling,
-    'PaymentMethod': paymentMethod,
-    'MonthlyCharges': monthlyCharges,
-    'TotalCharges': totalCharges,
-  }
-  features = pd.DataFrame(data, index=[0])
+  gender = get_sidebar_radio('Sexo', ('Masculino', 'Feminino'))
+  seniorCitizen = get_sidebar_radio('Idoso')
+  partner = get_sidebar_radio('Casado/Namorando')
+  dependents = get_sidebar_radio('Dependentes')
+  phoneService = get_sidebar_radio('Serviço de Telefone')
+  multipleLines = get_sidebar_radio('Multipla Linhas')
+  internetService = get_sidebar_radio('Serviço de Internet', ('Não', 'Fibra Optica', 'DSL'), horizontal=False)
+  onlineSecurity = get_sidebar_radio('Segurança Online')
+  onlineBackup = get_sidebar_radio('Backup Online')
+  deviceProtection = get_sidebar_radio('Proteção de Dispositivo')
+  techSupport = get_sidebar_radio('Suporte Tecnológico')
+  streamingTV = get_sidebar_radio('Streaming de TV')
+  stramingMovies = get_sidebar_radio('Streaming de Filmes')
+  contract = get_sidebar_radio('Tipo de Contrato', ('Mensal', 'Anual', 'Bianual'), horizontal=False)
+  paperlessBilling = get_sidebar_radio('Cobrança Digital')
+  paymentMethod = get_sidebar_radio('Método de Pagamento', ('Cartão de Crédito', 'Transferência Bancária', 'Cheque Eletrônico', 'Cheque Físico'), horizontal=False)
+  tenure = st.sidebar.slider('**Tempo de Contratação (Meses):**', min_value=0, max_value=70, value=12)
+  monthlyCharges = st.sidebar.number_input('**Cobrança Mensal (R$):**', min_value=10, max_value=120, value=65)
 
-  return features
+  return pd.DataFrame({
+    'gender': gender, 'SeniorCitizen': seniorCitizen, 'Partner': partner, 'Dependents': dependents,
+    'tenure': tenure, 'PhoneService': phoneService, 'MultipleLines': multipleLines,
+    'InternetService': internetService, 'OnlineSecurity': onlineSecurity, 'OnlineBackup': onlineBackup,
+    'DeviceProtection': deviceProtection, 'TechSupport': techSupport, 'StreamingTV': streamingTV,
+    'StramingMovies': stramingMovies, 'Contract': contract, 'PaperlessBilling': paperlessBilling,
+    'PaymentMethod': paymentMethod, 'MonthlyCharges': monthlyCharges}, index=['Input'])
 
-df = input_features()
+data = input_features()
+
 
 # ====================
 # MAIN CONTENT (first part)
 # ====================
 
 st.write("""
-  ## Como usar esta ferramenta?
-  Basta você cadastrar as variáveis na barra ao lado esquerdo e automaticamente ao manipular esses dados o modelo preditivo entrará em ação para trazer os resultados logo abaixo!
+  # Churn Prediction
 
+  - **Made by [Eduardo Chaves](https://linkedin.com/in/edu-chaves 'LinkedIn de Eduardo Chaves')**
+  - **Repositório deste Projeto no [GitHub](https://github.com/eduardochaves1/churn-prediction 'Churn Prediction by Eduardo Chaves')**
+""")
+
+
+st.image(Image.open('assets/banner_img.jpg'))
+
+
+st.write("""
+  ## Qual o problema a ser resolvido?
+
+  O intuito deste projeto é calcular a porcentagem de um cliente X *(cadastrado pelo usuário na barra lateral)* de cancelar ou continuar em um contrato (*plano*) de serviçoes de uma empresa de telecomunicações no próximo mês.
+
+  Tal situação é medido pelo *Churn*, que é quando um cliente deixa de consumir o produto / serviço de uma empresa. E este projeto visa capacitar uma empresa a identificar possíveis clientes que estão mais propensos a tomar tal decisão.
+  
+  Assim como identificar as métricas – relacionadas aos serviços / produtos da empresa – que mais influenciam na escolha do cliente sair ou continuar na mesma. Visando tomar medidas a diminuir o índice de *Churn* na empresa nos meses seguintes.
+""")
+
+
+st.write("""
+  ## Como usar esta ferramenta?
+
+  Basta você cadastrar as variáveis na barra ao lado esquerdo e automaticamente ao manipular esses dados o modelo preditivo entrará em ação para trazer os resultados logo abaixo!
+""")
+
+
+st.write("""
   ## Parâmetros Cadastrados
+
   - Abaixo segue os valores cadastrados pelo usuário na barra lateral:
 """)
-st.write(df)
+st.write(data)
 
-# ====================
-# DF PREPROCESSING (with user input_features)
-# ====================
-
-categorical_features = df.drop(['TotalCharges', 'MonthlyCharges', 'tenure'], axis=1)
-for feature in categorical_features.columns:
-  df[feature] = df[feature].astype('category')
-
-# IMPORTANT: As trocas por 0,1,2... seguem ordem alfabétida baseada nos textos do DF original
-# treinado para o modelo salvo e não nos dados aqui escritos em português
-df.replace(('Não', 'Sim'), (0, 1), inplace=True)
-df.gender.replace(('Feminino', 'Masculino'), (0, 1), inplace=True)
-df.InternetService.replace(('DSL', 'Não', 'Fibra Optica'), (0, 1, 2), inplace=True)
-df.Contract.replace(('Mensal', 'Anual', 'Bianual'), (0, 1, 2), inplace=True)
-df.PaymentMethod.replace(('Transferência Bancária', 'Cartão de Crédito', 'Cheque Eletrônico', 'Cheque Físico'), (0, 1, 2, 3), inplace=True)
-
-# ====================
-# MODEL PREDICTION (with user input_features)
-# ====================
-
-model = joblib.load('./assets/churn-prediction-model')
-predictionPercentage = np.round((model.predict_proba(df) * 100), 2)
-
-# ====================
-# MAIN CONTENT (last part)
-# ====================
 
 st.write('## Resultado da Predição')
 
-predictions = [predictionPercentage[0][0], predictionPercentage[0][1]]
+prediction = get_prediction(data)
+predictionMsg = '***continuará*** no' if float(prediction['Churn'][0][:-1]) <= 50 else '***cancelará*** o'
+predictionPercent = prediction['Not Churn'][0] if float(prediction['Churn'][0][:-1]) <= 50 else prediction['Churn'][0]
 
-predictionMsg = '***continuará*** no' if predictions[0] > 50 else '***cancelará*** o'
-predictionNumber = predictions[0] if predictions[0] > 50 else predictions[1]
+st.write(f'O modelo previu uma porcentagem de **{predictionPercent}** de que o cliente {predictionMsg} contrato!')
+st.write(prediction)
 
-st.write('O modelo previu uma porcentagem de', predictionNumber, '% de que o cliente', predictionMsg, 'contrato!')
-st.write(predictionPercentage)
-st.write('- 0 = Not Churn | 1 = Churn')
 
 st.write("""
   ## Como o Modelo Chegou a este Resultado?
+
   Segue abaixo um gráfico exibindo as variáveis que mais importam na tomada de decisão de acordo com o aprendizado do modelo treinado previamente.
 """)
 st.image(Image.open('./assets/graphs/feature-importance.png'))
 
-# ====================
-# GRAPHS EXPOSURE
-# ====================
 
 st.write("""
   ---
   ## Como este Modelo foi Treinado?
+
   O modelo preditivo usado neste projeto foi treinado por um algorítimo de *Machine Learning* em cima de um *Data Frame*, o qual possuia as seguintes estatísticas...
 """)
 st.caption('**OBS.:** Para entender o lado mais técnico acesse o link para o repositório deste projeto no GitHub no ínicio desta página.')
 
-st.write('- ### Pessoas que deram *Churn* nos 30 dias anteriores')
+
+st.write('### 1 - Pessoas que deram *Churn* nos 30 dias anteriores')
 st.image(Image.open('./assets/graphs/churn.png'))
 
+
 st.write("""
-  - ### Tempo de Contrato, Gasto Mensal e Gasto Total em Serviços
+  ### 2 -  Tempo de Contrato, Gasto Mensal e Gasto Total em Serviços
   
   Os gráficos *boxplot* abaixo ([saiba como interpretar esse tipo de gráfico com esse tutotiral](https://www.youtube.com/watch?v=qU2lANG4hYQ&ab_channel=Statplace 'Vídeo no Youtube ensinando a interpretar um gráfico Boxplot')) demonstram respectivamente:
   
@@ -156,8 +148,9 @@ st.write("""
 """)
 st.image(Image.open('./assets/graphs/numeric-features.png'))
 
+
 st.write("""
-  - ### Informações sobre Contrato
+  ### 3 - Informações sobre Contrato
   
   Os gráficos abaixo demonstram a quantidade de pessoas para as seguintes informações, respectivamente:
   
@@ -167,8 +160,9 @@ st.write("""
 """)
 st.image(Image.open('./assets/graphs/contract-features.png'))
 
+
 st.write("""
-  - ### Dados Demográficos
+  ### 4 - Dados Demográficos
   
   Os gráficos demográficos abaixo (sobre os clientes da empresa) demonstram a quantidade de pessoas para as seguintes informações, respectivamente:
   
@@ -179,8 +173,9 @@ st.write("""
 """)
 st.image(Image.open('./assets/graphs/demographic-features.png'))
 
+
 st.write("""
-  - ### Dados de Serviços
+  ### 5 - Dados de Serviços
   
   Os gráficos abaixo demonstram a quantidade de pessoas que utilizam os seguintes serviços fornecidos pela empresa, respectivamente:
   
@@ -195,6 +190,7 @@ st.write("""
   - Straming de Filmes.
 """)
 st.image(Image.open('./assets/graphs/services-features.png'))
+
 
 st.write("""
   ---
