@@ -1,23 +1,19 @@
 import streamlit as st
+import pandas as pd
 import joblib
 from PIL import Image
-import pandas as pd
-import numpy as np
 
 
 def get_prediction(data):
-  categorical_features = data.drop(['MonthlyCharges', 'tenure'], axis=1)
-  for feature in categorical_features.columns:
+  for feature, fit in joblib.load('assets/labelEncoder_fit.jbl'):
+    if feature != 'Churn':
+      data[feature] = fit.transform(data[feature])
+
+  for feature in data.drop(['MonthlyCharges', 'tenure'], axis=1).columns:
     data[feature] = data[feature].astype('category')
 
-  # IMPORTANT: As trocas por 0,1,2... seguem ordem alfabétida baseada nos textos do data original
-  # treinado para o modelo salvo e não nos dados aqui escritos em português
-  data.replace(('Não', 'Sim'), (0, 1), inplace=True)
-  data.gender.replace(('Feminino', 'Masculino'), (0, 1), inplace=True)
-  data.InternetService.replace(('DSL', 'Não', 'Fibra Optica'), (0, 1, 2), inplace=True)
-  data.Contract.replace(('Mensal', 'Anual', 'Bianual'), (0, 1, 2), inplace=True)
-  data.PaymentMethod.replace(('Transferência Bancária', 'Cartão de Crédito', 'Cheque Eletrônico', 'Cheque Físico'), (0, 1, 2, 3), inplace=True)
-
+  for feature, scaler in joblib.load('assets/minMaxScaler_fit.jbl'):
+    data[feature] = scaler.transform(data[feature].values.reshape(-1,1))
 
   model = joblib.load('./assets/churn-prediction-model.jbl')
   return pd.DataFrame({
@@ -32,34 +28,34 @@ def get_prediction(data):
 st.sidebar.write('# **Cadastro dos Parâmetros**')
 
 def input_features():
-  def get_sidebar_radio(title, choices=('Não', 'Sim'), horizontal=True):
+  def get_sidebar_radio(title, choices=('No', 'Yes'), horizontal=True):
     return st.sidebar.radio(f'**{title}:**', choices, horizontal=horizontal)
 
-  gender = get_sidebar_radio('Sexo', ('Masculino', 'Feminino'))
+  gender = get_sidebar_radio('Sexo', ('Male', 'Female'))
   seniorCitizen = get_sidebar_radio('Idoso')
   partner = get_sidebar_radio('Casado/Namorando')
   dependents = get_sidebar_radio('Dependentes')
   phoneService = get_sidebar_radio('Serviço de Telefone')
   multipleLines = get_sidebar_radio('Multipla Linhas')
-  internetService = get_sidebar_radio('Serviço de Internet', ('Não', 'Fibra Optica', 'DSL'), horizontal=False)
+  internetService = get_sidebar_radio('Serviço de Internet', ('No', 'Fiber optic', 'DSL'), horizontal=False)
   onlineSecurity = get_sidebar_radio('Segurança Online')
   onlineBackup = get_sidebar_radio('Backup Online')
   deviceProtection = get_sidebar_radio('Proteção de Dispositivo')
   techSupport = get_sidebar_radio('Suporte Tecnológico')
   streamingTV = get_sidebar_radio('Streaming de TV')
-  stramingMovies = get_sidebar_radio('Streaming de Filmes')
-  contract = get_sidebar_radio('Tipo de Contrato', ('Mensal', 'Anual', 'Bianual'), horizontal=False)
+  streamingMovies = get_sidebar_radio('Streaming de Filmes')
+  contract = get_sidebar_radio('Tipo de Contrato', ('Month-to-month', 'One year', 'Bianual'), horizontal=False)
   paperlessBilling = get_sidebar_radio('Cobrança Digital')
-  paymentMethod = get_sidebar_radio('Método de Pagamento', ('Cartão de Crédito', 'Transferência Bancária', 'Cheque Eletrônico', 'Cheque Físico'), horizontal=False)
+  paymentMethod = get_sidebar_radio('Método de Pagamento', ('Credit card (automatic)', 'Bank transfer (automatic)', 'Electronic check', 'Mailed check'), horizontal=False)
   tenure = st.sidebar.slider('**Tempo de Contratação (Meses):**', min_value=0, max_value=70, value=12)
-  monthlyCharges = st.sidebar.number_input('**Cobrança Mensal (R$):**', min_value=10, max_value=120, value=65)
+  monthlyCharges = st.sidebar.number_input('**Cobrança Mensal (R$):**', min_value=10.0, max_value=120.0, value=65.0)
 
   return pd.DataFrame({
     'gender': gender, 'SeniorCitizen': seniorCitizen, 'Partner': partner, 'Dependents': dependents,
     'tenure': tenure, 'PhoneService': phoneService, 'MultipleLines': multipleLines,
     'InternetService': internetService, 'OnlineSecurity': onlineSecurity, 'OnlineBackup': onlineBackup,
     'DeviceProtection': deviceProtection, 'TechSupport': techSupport, 'StreamingTV': streamingTV,
-    'StramingMovies': stramingMovies, 'Contract': contract, 'PaperlessBilling': paperlessBilling,
+    'StreamingMovies': streamingMovies, 'Contract': contract, 'PaperlessBilling': paperlessBilling,
     'PaymentMethod': paymentMethod, 'MonthlyCharges': monthlyCharges}, index=['Input'])
 
 data = input_features()
