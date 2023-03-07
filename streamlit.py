@@ -25,30 +25,30 @@ def get_prediction(data):
 # SIDEBAR (user input_features)
 # ====================
 
-st.sidebar.write('# **Cadastro dos Parâmetros**')
+st.sidebar.write('# **Parameters Input**')
 
 def input_features():
   def get_sidebar_radio(title, choices=('No', 'Yes'), horizontal=True):
     return st.sidebar.radio(f'**{title}:**', choices, horizontal=horizontal)
 
-  gender = get_sidebar_radio('Sexo', ('Male', 'Female'))
-  seniorCitizen = get_sidebar_radio('Idoso')
-  partner = get_sidebar_radio('Casado/Namorando')
-  dependents = get_sidebar_radio('Dependentes')
-  phoneService = get_sidebar_radio('Serviço de Telefone')
-  multipleLines = get_sidebar_radio('Multipla Linhas')
-  internetService = get_sidebar_radio('Serviço de Internet', ('No', 'Fiber optic', 'DSL'), horizontal=False)
-  onlineSecurity = get_sidebar_radio('Segurança Online')
-  onlineBackup = get_sidebar_radio('Backup Online')
-  deviceProtection = get_sidebar_radio('Proteção de Dispositivo')
-  techSupport = get_sidebar_radio('Suporte Tecnológico')
-  streamingTV = get_sidebar_radio('Streaming de TV')
-  streamingMovies = get_sidebar_radio('Streaming de Filmes')
-  contract = get_sidebar_radio('Tipo de Contrato', ('Month-to-month', 'One year', 'Bianual'), horizontal=False)
-  paperlessBilling = get_sidebar_radio('Cobrança Digital')
-  paymentMethod = get_sidebar_radio('Método de Pagamento', ('Credit card (automatic)', 'Bank transfer (automatic)', 'Electronic check', 'Mailed check'), horizontal=False)
-  tenure = st.sidebar.slider('**Tempo de Contratação (Meses):**', min_value=0, max_value=70, value=12)
-  monthlyCharges = st.sidebar.number_input('**Cobrança Mensal (R$):**', min_value=10.0, max_value=120.0, value=65.0)
+  gender = get_sidebar_radio('Gender', ('Male', 'Female'))
+  seniorCitizen = get_sidebar_radio('Senior')
+  partner = get_sidebar_radio('Partner')
+  dependents = get_sidebar_radio('Dependents')
+  phoneService = get_sidebar_radio('Phone Service')
+  multipleLines = get_sidebar_radio('Multiple Lines')
+  internetService = get_sidebar_radio('Internet Service', ('No', 'Fiber optic', 'DSL'), horizontal=False)
+  onlineSecurity = get_sidebar_radio('Online Security')
+  onlineBackup = get_sidebar_radio('Online Backup')
+  deviceProtection = get_sidebar_radio('Device Protection')
+  techSupport = get_sidebar_radio('Tech Support')
+  streamingTV = get_sidebar_radio('TV Streaming')
+  streamingMovies = get_sidebar_radio('Movie Streaming')
+  contract = get_sidebar_radio('Contract', ('Month-to-month', 'One year', 'Two year'), horizontal=False)
+  paperlessBilling = get_sidebar_radio('Paperless Billing')
+  paymentMethod = get_sidebar_radio('Payment Method', ('Credit card (automatic)', 'Bank transfer (automatic)', 'Electronic check', 'Mailed check'), horizontal=False)
+  tenure = st.sidebar.slider('**Tenure (Months):**', min_value=0, max_value=70, value=12)
+  monthlyCharges = st.sidebar.number_input('**Monthly Charges ($):**', min_value=10.0, max_value=120.0, value=65.0)
 
   return pd.DataFrame({
     'gender': gender, 'SeniorCitizen': seniorCitizen, 'Partner': partner, 'Dependents': dependents,
@@ -69,7 +69,7 @@ st.write("""
   # Churn Prediction
 
   - **Made by [Eduardo Chaves](https://linkedin.com/in/edu-chaves 'LinkedIn de Eduardo Chaves')**
-  - **Repositório deste Projeto no [GitHub](https://github.com/eduardochaves1/churn-prediction 'Churn Prediction by Eduardo Chaves')**
+  - **[GitHub Repository](https://github.com/eduardochaves1/churn-prediction 'Churn Prediction by Eduardo Chaves')**
 """)
 
 
@@ -77,118 +77,97 @@ st.image(Image.open('assets/banner_img.jpg'))
 
 
 st.write("""
-  ## Qual o problema a ser resolvido?
+  ## What Problem we're Tying to Solve?
 
-  O intuito deste projeto é calcular a porcentagem de um cliente X *(cadastrado pelo usuário na barra lateral)* de cancelar ou continuar em um contrato (*plano*) de serviçoes de uma empresa de telecomunicações no próximo mês.
+  Imagine you own a telecommunication company and you want to have a Machine Learning model to predict the custumers that may probably churn in the next months. So I developed one and deployed in this prototype web application that would help you in this situation!
 
-  Tal situação é medido pelo *Churn*, que é quando um cliente deixa de consumir o produto / serviço de uma empresa. E este projeto visa capacitar uma empresa a identificar possíveis clientes que estão mais propensos a tomar tal decisão.
-  
-  Assim como identificar as métricas – relacionadas aos serviços / produtos da empresa – que mais influenciam na escolha do cliente sair ou continuar na mesma. Visando tomar medidas a diminuir o índice de *Churn* na empresa nos meses seguintes.
+  For those who don't know, churn is when a custumer stops paying for a company's service. And as I've heard once, it is cheaper to keep the custumer you already have instead of spending more and more money and time to gather new ones.
 """)
 
 
 st.write("""
-  ## Como usar esta ferramenta?
+  ## How to use this tool?
 
-  Basta você cadastrar as variáveis na barra ao lado esquerdo e automaticamente ao manipular esses dados o modelo preditivo entrará em ação para trazer os resultados logo abaixo!
+  You only need to provide the parameters to the machine learning model at the sidebar on the left side of this page. And the predictions made by the model will be outputted right below.
 """)
 
 
 st.write("""
-  ## Parâmetros Cadastrados
+  ## Parameters Imputed:
 
-  - Abaixo segue os valores cadastrados pelo usuário na barra lateral:
+  - Down below are the parameters setted up to the model by the inputs of the sidebar.
 """)
 st.write(data)
 
 
-st.write('## Resultado da Predição')
+st.write('## Prediction Results:')
 
 prediction = get_prediction(data)
-predictionMsg = '***continuará*** no' if float(prediction['Churn'][0][:-1]) <= 50 else '***cancelará*** o'
+predictionMsg = '***Not Churn***' if float(prediction['Churn'][0][:-1]) <= 50 else '***Churn***'
 predictionPercent = prediction['Not Churn'][0] if float(prediction['Churn'][0][:-1]) <= 50 else prediction['Churn'][0]
 
-st.write(f'O modelo previu uma porcentagem de **{predictionPercent}** de que o cliente {predictionMsg} contrato!')
+st.write(f'The model predicted a percentage of **{predictionPercent}** that the custumer will {predictionMsg}!')
 st.write(prediction)
 
 
 st.write("""
-  ## Como o Modelo Chegou a este Resultado?
+  ## Interpreting the Machine Learning Model:
 
-  Segue abaixo um gráfico exibindo as variáveis que mais importam na tomada de decisão de acordo com o aprendizado do modelo treinado previamente.
+  Down below follows the features that most affects the model classification of Churn and Not Churn.
 """)
 st.image(Image.open('./assets/graphs/feature-importance.png'))
 
 
 st.write("""
   ---
-  ## Como este Modelo foi Treinado?
+  ## How this model was trained?
 
-  O modelo preditivo usado neste projeto foi treinado por um algorítimo de *Machine Learning* em cima de um *Data Frame*, o qual possuia as seguintes estatísticas...
+  It was trained on a dataset with around seven thousand data registries from a telecommunication company.
+
+  Down below I'll show some statistical facts about this dataset, but if you want to see the most technical side you can take a look at this project's [GitHub Repository](https://github.com/eduardochaves1/churn-prediction 'Churn Prediction by Eduardo Chaves').
 """)
-st.caption('**OBS.:** Para entender o lado mais técnico acesse o link para o repositório deste projeto no GitHub no ínicio desta página.')
 
-
-st.write('### 1 - Pessoas que deram *Churn* nos 30 dias anteriores')
+st.write('### 1 - Amount of Churn Cases on Previous Month')
 st.image(Image.open('./assets/graphs/churn.png'))
 
 
 st.write("""
-  ### 2 -  Tempo de Contrato, Gasto Mensal e Gasto Total em Serviços
-  
-  Os gráficos *boxplot* abaixo ([saiba como interpretar esse tipo de gráfico com esse tutotiral](https://www.youtube.com/watch?v=qU2lANG4hYQ&ab_channel=Statplace 'Vídeo no Youtube ensinando a interpretar um gráfico Boxplot')) demonstram respectivamente:
-  
-  - A quantidade de tempo, em meses, que os clientes manteram os contratos de serviços da empresa (*Tenure*);
-  - O gasto mensal que os clientes mantinham nos serviços da empresa (*MonthlyCharges*);
-  - O gasto total que os clientes tiveram nos serviços da empresa até o último mês (*TotalCharges*).
+  ### 2 -  Numerical Features of the Data Set
+
+  With these boxplot graphs we can see some statistical values from these numerical features - like median, min, max and more.
+
+  - **Tenure:** Amount of months paying for the service;
+  - **Monthly Charges:** Amount of money monthly paid for the service;
+  - **Total Charges:** Multiplication of Tenure and Monthly Charges (this feature wasn't used on the model final training as this didn't include any more information about a custumer);
 """)
 st.image(Image.open('./assets/graphs/numeric-features.png'))
 
 
 st.write("""
-  ### 3 - Informações sobre Contrato
-  
-  Os gráficos abaixo demonstram a quantidade de pessoas para as seguintes informações, respectivamente:
-  
-  - O tipo de período de contrato (Mensal, Anual ou Bianual);
-  - Se o pagamento era realizado de forma digital;
-  - O Método de Pagamento utilizado (Cheque Eletrônico, Cheque por Correios, Transferência Bancária e Cartão de Crédito, sendo esses dois últimos feitos de forma automática).
+  ### 3 - Features about the Contract
+
+  In these graphs we can see the amount of custumers that had these types of contract for the services they use.
 """)
 st.image(Image.open('./assets/graphs/contract-features.png'))
 
 
 st.write("""
-  ### 4 - Dados Demográficos
-  
-  Os gráficos demográficos abaixo (sobre os clientes da empresa) demonstram a quantidade de pessoas para as seguintes informações, respectivamente:
-  
-  - Sexo do cliente;
-  - Se o cliente é idoso;
-  - Se o cliente tem um parceiro (Casado ou Namorando);
-  - Se o cliente tem dependentes (alguém que depende financeiramente do cliente).
+  ### 4 - Demographic Features
+
+  Here we can see the amount of people that have these particular characteristics in their personal lifes.
 """)
 st.image(Image.open('./assets/graphs/demographic-features.png'))
 
 
 st.write("""
-  ### 5 - Dados de Serviços
-  
-  Os gráficos abaixo demonstram a quantidade de pessoas que utilizam os seguintes serviços fornecidos pela empresa, respectivamente:
-  
-  - Serviço Telefônico;
-  - Multiplas Linhas Telefônicas;
-  - Serviço de Internet;
-  - Serviço de Seguraça Online;
-  - Serviço de Backup Online;
-  - Proteção de Dispositivo;
-  - Suporte Técnico;
-  - Straming de TV;
-  - Straming de Filmes.
+  ### 5 - Service's Features
+
+  Most of the features included in the data set was about the services that a custumer is paying for, and these are the amouts of people that used each one.
 """)
 st.image(Image.open('./assets/graphs/services-features.png'))
 
 
 st.write("""
   ---
-  > ***"No futuro, o pensamento estatístico será tão necessário para a cidadania eficiente como saber ler e escrever."*** - H.G. Wells (escritor, autor de "A Guerra dos Mundos" e "A Máquina do Tempo")
+  > ***"Statistical thinking will one day be as necessary for efficient citizenship as the ability to read and write."*** - H.G. Wells (writer and author of "The war of the worlds" and "The time machine")
 """)
