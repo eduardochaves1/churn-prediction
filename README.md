@@ -1,11 +1,11 @@
 # Churn Prediction - Eduardo Chaves
 
-- Deploy com o Streamlit: https://churn-prediction-eduardochaves.streamlit.app/
+- Streamlit Deploy: https://churn-prediction-eduardochaves.streamlit.app/
 
-Este é o meu primeiro projeto em Data Analytics e Machine Learning envolvendo a predição de evazão de clientes em um empresa de telecomunicações (Churn). Proposto pelo meu professor do PET (Projeto de Extensão tecnológico) em Data Analytics e Machine Learning.
+This is my first DS (Data Science) project, in which was about churn cases from clients in a telecomunication company. This was a challenge from the first DS course I did.
 
-Este mesmo projeto foi utilizado para realizar um concurso visando selecionar os 10 melhores alunos do PET para um estágio de 3 meses atuando na área.
+With this project, I earned the second place at this challenge in my class and a three month internship position at Procenge (one of the oldest tech companies in Brazil).
 
-Para conhecer mais do projeto veja o arquivo [churn-prediction.ipynb](./churn-prediction.ipynb 'Arquivo Jupyter Notebook') onde mostro todo o meu processo de exploração dos dados obtidos no data set, visualização, tratamento e então criação/validação do modelo de machine learning.
+You can see my work precess by looking at the two Jupyter Notebooks on this repository, one that I used for the EDA (Exploratory Data Analysis) and the second one to develop the machine learning pipeline. In those files I wrote some comments to help you understand my train of thought.
 
-Também use o simples web app que fiz com o framework [Streamlit](https://streamlit.io/ 'Streamlit Website') demonstrando na prática os resultados gerado pelo modelo, onde mesmo você pode estar *brincando* com as variáveis do dataframe e ver como as predições reagem a essas adaptações. 
+I did also a front-end web application using [Streamlit](https://streamlit.io/ 'Streamlit Website') so you can interact with the machine learning model I trained. And you can also see some basic information about the training data set used on the project.
